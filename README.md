@@ -1,5 +1,13 @@
 # Learning Golang
 
+## Reasons to choose Golang
+-	Faster Build time
+-	Fast Sartup time
+-	Performance and Efficiency
+-	Concurrency Model
+-	Static Typing
+-	Less Build bundle size
+
 ## Variables
 
 ### Declaration
@@ -167,4 +175,253 @@ Platform name can be:
 	indexToRemove := 2
 	c = append(c[:indexToRemove], c[indexToRemove+1:]...)
 	fmt.Println(c) // [1 2 4 5 6]
+
+	// Capacity
+	fmt.Println(cap(c)) // 6
+
+	// Copying a slice
+	arr := []int{}
+	arr = append(arr, 1, 2, 3, 4, 5)
+	arr2 := make([]int, len(arr))
+
+	copy(arr2, arr)
+	fmt.Println(arr, arr2) // [1 2 3 4 5] [1 2 3 4 5]
+
+	// Check if 2 slices are same
+	// fmt.Println(arr == arr2) // This won't work
+	fmt.Println(slices.Equal(arr, arr2)) // true
+
+	// 2D slice
+	arr3 := [][]int{{1, 2}, {3, 4}}
+	fmt.Println(arr3) // [[1 2] [3 4]]
 ```
+
+## Constants
+- Declare variables that cannot be reassigned during the program's life.
+```go
+	const name string = "John"
+	// name = "Joe" // Not allowed
+	fmt.Println(name) // John
+
+	// Grouping multiple constants
+	const (
+		pi       = 3.14
+		language = "Go"
+	)
+	fmt.Println(pi, language) // 3.14 Go
+
+```
+
+## Loops
+**For is the only looping construct in go. There is no while loop**
+```go
+	// For loop
+	for i := 0; i < 5; i++ {
+		fmt.Println(i)
+	}
+
+	// There is no while loop construct in go
+	// Instead we can use for loop
+	i := 5
+	for i < 10 {
+		fmt.Println(i)
+		i++
+	}
+
+	// For loop with break and continue. Once we reach 5, the looping will stop and we will skip 3
+	for i := 0; i < 10; i++ {
+		if i == 5 {
+			break
+		}
+		if i == 3 {
+			continue
+		}
+		fmt.Println("Num -> ", i)
+	}
+
+	// Range bases loop
+	for ele := range 5 {
+		fmt.Println(ele) // 0 1 2 3 4
+	}
+
+	arr := []int{1, 2, 3, 4, 5}
+	for index, value := range arr {
+		fmt.Println(index, value)
+	}
+
+
+	// Infinite loop
+	for {
+		fmt.Println("Infinite loop")
+	}
+```
+
+## If-Else
+```go
+	if condition {
+		statements
+	}
+
+	if condition {
+		statements
+	} else {
+		statements
+	}
+
+	if condition-1 {
+		statements
+	} else if condition-2 {
+		statements
+	}
+
+	age := 18
+	if age >= 18 {
+		fmt.Println("You are an adult")
+	}
+	else if age >= 13 {
+		fmt.Println("You are a teenager")
+	}
+	else {
+		fmt.Println("You are a Kodomo")
+	}	
+	// The same thing can be written as:
+	if age := 18; age >= 18 {
+		fmt.Println("You are an adult")
+	}
+	else if age >= 13 {
+		fmt.Println("You are a teenager")
+	}
+	else {
+		fmt.Println("You are a Kodomo")
+	}
+```
+**NOTE:** *There is no ternary operator in go*
+
+## Switch-case
+```go
+	switch time.Now().Weekday() {
+	case time.Saturday, time.Sunday:
+		println("It's the weekend")
+
+	default:
+		println("It's a weekday")
+	}
+
+	// Type switch
+	whatAmI := func(i interface{}) {
+		switch t := i.(type) {
+		case bool:
+			println("I'm a bool")
+		case int:
+			println("I'm an int")
+		case string:
+			println("I'm a string")
+		default:
+			println("Other", t)
+		}
+	}
+	whatAmI(true)
+	whatAmI("hello")
+	whatAmI(23.5)
+```
+## Maps
+- Maps are unordered collections of key-value pairs.
+
+```go
+	// Declaring a map
+	m := make(map[string]int)
+	// OR
+	// m := map[string]int{"k0": 0}
+
+	m["k1"] = 7
+	m["k2"] = 13
+
+	fmt.Println("map:", m)       // map: map[k1:7 k2:13]
+	fmt.Println("len:", len(m))  // len: 2
+	fmt.Println("k1: ", m["k1"]) // 7
+	// Deleting map entry
+	delete(m, "k2")
+	fmt.Println(m)
+
+	// Check if key exists
+	val, ok := m["k1"]
+	if ok {
+		fmt.Println("Key exists", val)
+	} else {
+		fmt.Println("Key does not exist")
+	}
+
+	// Check if 2 maps are equal
+	m1 := map[string]int{"foo": 1, "bar": 2}
+	m2 := map[string]int{"foo": 1, "bar": 2}
+	// fmt.Println(m1 == m2) // This won't work
+	fmt.Println(maps.Equal(m1, m2)) // true
+
+	// Iterating over map
+	for k, v := range m1 {
+		fmt.Println(k, "->", v)
+	}
+
+	// CLearing the map
+	clear(m)
+	fmt.Println(m) // map[]
+```
+**NOTE:** *If key does not exist in the map, it returns zeroed value*
+
+## Functions
+-	Functions are first class citizens in go.
+-	Functions can be passed as arguments to other functions.
+-	Functions can be returned from other functions.
+-	Functions can be treated as variables.
+
+```go
+	package main
+
+	import "fmt"
+
+	func add(a int, b int) int {
+		return a + b
+	}
+
+	func sub(a, b int) int {
+		return a - b
+	}
+
+	func getNames() (string, string) {
+		return "foo", "bar"
+	}
+
+	func checkEven(a int) bool {
+		return a%2 == 0
+	}
+
+	func filter(a []int, f func(int) bool) []int {
+		var result []int
+		for _, v := range a {
+			if f(v) {
+				result = append(result, v)
+			}
+		}
+		return result
+	}
+
+	func main() {
+		println(add(1, 2))
+		println(sub(1, 2))
+		l1, l2 := getNames()
+		println(l1, l2)
+
+		arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+		fmt.Println(filter(arr, checkEven))
+
+	}
+
+```
+
+
+
+
+
+
+
+

@@ -14,8 +14,12 @@ func main() {
 	b[2] = "!"
 	b[3] = "!"
 
-	fmt.Println(b)      // [Hello World ! ! ] The last item is an empty space as it is not initialized
-	fmt.Println(len(b)) // 5
-	fmt.Printf("%T", b) // [5]string
+	fmt.Println(b)        // [Hello World ! ! ] The last item is an empty space as it is not initialized
+	fmt.Println(len(b))   // 5
+	fmt.Printf("%T\n", b) // [5]string
+
+	// 2D array
+	nums := [2][2]int{{1, 2}, {3, 4}}
+	fmt.Println(nums) // [[1 2] [3 4]]
 
 }
