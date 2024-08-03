@@ -652,3 +652,4 @@ func main() {
 -	`%t` for booleans
 -	`%v` guesses based on datatype
 -	`%T` for types
+-	`%p` for pointers
