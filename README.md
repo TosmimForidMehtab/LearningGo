@@ -149,9 +149,11 @@ Platform name can be:
 -   ### New
     -   Allocate but no INIT
     -   zeroed storage
+	-	Returns a pointer
 -   ### Make
     -   Allocate memory and initialise
     -   non-zeroed storage
+	-	Returns a value
 -   Deallocation happens automatically
 
 ## Pointers
