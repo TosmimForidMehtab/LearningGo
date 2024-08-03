@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // a := 1 // short variable declaration not allowed in the global scope
 // Capital letter is used for public variables

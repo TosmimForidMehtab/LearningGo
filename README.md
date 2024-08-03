@@ -33,7 +33,47 @@ _NOTE: The ':=' operator does not work in the global scope_
 ## Data Types
 
 ```go
-int, float32, float64, bool, complex64, complex128
+int, string, float32, float64, bool, complex64, complex128
+```
+
+**Check type of variables/values:**
+```go
+	fmt.Println(reflect.TypeOf(name)) // string
+	fmt.Println(reflect.TypeOf(25)) // int
+```
+**Casting one type to another:**
+```go
+	a := 1.3
+	fmt.Println(reflect.TypeOf(a)) // float64
+	b := int(a)
+	fmt.Println(reflect.TypeOf(b)) // int
+	fmt.Println(b) // 1
+
+	// String to int
+	c := "100"
+	d, err := strconv.Atoi(c)
+	if err == nil{
+		fmt.Println(reflect.TypeOf(d)) // int
+	}
+	// int to string
+	e := 100
+	f := strconv.Itoa(e)
+	fmt.Println(reflect.TypeOf(f)) // string
+
+	// string to float
+	g := "100.5"
+	h, err := strconv.ParseFloat(g, 64)
+	if err == nil {
+		fmt.Println(reflect.TypeOf(h)) // float64
+	}
+
+	// float to string
+	i := 100.5
+	j := strconv.FormatFloat(i, 'f', 1, 64)
+	fmt.Println(reflect.TypeOf(j)) // string
+	// OR
+	k := fmt.Sprintf("%f", i)
+	fmt.Println(reflect.TypeOf(k)) // string
 ```
 
 ## Taking input
@@ -118,6 +158,76 @@ Platform name can be:
 
 ### Pointres are ez bcoz i'm from C++
 
+## Strings
+-   Strings are immutable in Go
+-   Strings are slices of bytes
+```go
+	// Replace a string with another
+	s := "Hello World"
+	replacer := strings.NewReplacer("World", "Tos")
+	s = replacer.Replace(s)
+	fmt.Println(s)      // Hello Tos
+	fmt.Println(len(s)) // 9
+
+	// Check if a string contains another string
+	if strings.Contains(s, "Hello") {
+		fmt.Println("Hello is in the string") // This is executed and printed
+	} else {
+		fmt.Println("Hello is not in the string")
+	}
+
+	// Find the first occuring index of a string
+	fmt.Println(strings.Index(s, "o")) // 4
+
+	// Search and replace every o with 0
+	fmt.Println(strings.Replace(s, "o", "0", -1)) // Hell0 T0s
+
+	// Split string
+	fmt.Println(strings.Split(s, " ")) // [Hello Tos]
+
+	// Uppercase and lowercase
+	fmt.Println(strings.ToUpper(s)) // HELLO TOS
+	fmt.Println(strings.ToLower(s)) // hello tos
+
+	// Check if a string starts with another string
+	fmt.Println(strings.HasPrefix(s, "He")) // true
+
+	// Check if a string ends with another string
+	fmt.Println(strings.HasSuffix(s, "ld")) // false
+```
+## Runes
+-	Runes are used to handle individual characters in strings, especially when dealing with multi-byte characters or special characters
+-	It's an alias for the int32 type
+```go
+	str := "abcdefg"
+	fmt.Println(utf8.RuneCountInString(str)) // 7
+
+	// Printing the index, utf8 code and character
+	for idx, val := range str {
+		fmt.Printf("%d : %#U : %c\n", idx, val, val)
+	}
+	// OUTPUT:
+	/*
+		0 : U+0061 'a' : a
+		1 : U+0062 'b' : b
+		2 : U+0063 'c' : c
+		3 : U+0064 'd' : d
+		4 : U+0065 'e' : e
+		5 : U+0066 'f' : f
+		6 : U+0067 'g' : g
+	*/
+
+	// Converting string to runes
+	r := []rune(str)
+	for _, val := range r {
+		fmt.Println(val)
+	}
+
+	// Converting byte array to string
+	b := []byte{'a', 'b', 'c'}
+	bStr := string(b[:])
+	fmt.Println(bStr)
+```
 ## Arrays
 
 -   Arrays are strange and weird
@@ -437,3 +547,106 @@ Platform name can be:
 		fmt.Println(total)
 	}
 ```
+
+## Closures
+-	Binds the parent environment variables with the embedded environment
+```go
+	func activateGiftCard() func(int) int {
+		balance := 100
+		return func(debitAmount int) int {
+			balance -= debitAmount
+			return balance
+		}
+	}
+
+	func main() {
+		useGiftCard1 := activateGiftCard()
+		fmt.Println(useGiftCard1(25)) // 75
+
+		useGiftCard2 := activateGiftCard()
+		fmt.Println(useGiftCard2(50)) // 50
+	}
+```
+
+## Templates
+-	Template is a way to generate code for different types.
+```go
+	type Number interface {
+		int | int32 | int64 | float32 | float64
+	}
+
+	func addNums[T Number](numbers []T) T {
+		var sum T
+		for i := range numbers {
+			sum += numbers[i]
+		}
+		return sum
+	}
+
+	func main() {
+		nums := []int{1, 2, 3, 4, 5}
+		sum := addNums(nums)
+		nums2 := []float32{1.1, 2.2, 3.3, 4.4, 5.5}
+		sum2 := addNums(nums2)
+		fmt.Println("Int sum -> ", sum)
+		fmt.Println("float32 sum -> ", sum2)
+
+	}
+```
+## Math
+-	Math library is used for mathematical operations. Some of functions are listed here
+```go
+	package main
+
+import (
+	"fmt"
+	"math"
+	"math/rand"
+	"time"
+)
+
+func main() {
+	// Random number
+	seedSecs := time.Now().Unix()
+	rand.NewSource(seedSecs)
+	randNum := rand.Intn(10) + 1
+	fmt.Println("Random :", randNum)
+
+	// Absolute of a number
+	fmt.Println("Absolute of -5 is:", math.Abs(-5)) // 5
+
+	// Square root of a number
+	fmt.Println("Square root of 25 is:", math.Sqrt(25)) // 5
+
+	// Power of a number
+	fmt.Println("2 to the power of 3 is:", math.Pow(2, 3)) // 8
+
+	// Floor of a number
+	fmt.Println("Floor of 3.7 is:", math.Floor(3.7)) // 4
+
+	// Ceil of a number
+	fmt.Println("Ceil of 3.7 is:", math.Ceil(3.7)) // 3
+
+	// Min and max of numbers
+	fmt.Println("Min of 10 and 20 is:", math.Min(10, 20)) // 10
+	fmt.Println("Max of 10 and 20 is:", math.Max(10, 20)) // 20
+
+	// Logarithm of a number base 10
+	fmt.Println("Logarithm of 10 is:", math.Log10(10)) // 1
+
+	// Logarithm of a number base 2
+	fmt.Println("Logarithm of 8 is:", math.Log2(8)) // 3
+}
+```
+## Format specifiers
+- Format specifiers are used to format the output of the program.
+
+-	`%d` for integers
+-	`%f` for floating point numbers
+-	`%s` for strings
+-	`%x` for hexadecimal numbers
+-	`%c` for characters
+-	`%o` for octal numbers
+-	`%t` for booleans
+-	`%v` guesses based on datatype
+-	`%T` for types
