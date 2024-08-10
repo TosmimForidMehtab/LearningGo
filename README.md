@@ -652,3 +652,244 @@ func main() {
 -	`%t` for booleans
 -	`%v` guesses based on datatype
 -	`%T` for types
+
+## Structs (Structure)
+- A struct is a collection of fields of different data types.
+```go
+	type Engine struct {
+		id     int16
+		milage float32
+	}
+	type Car struct {
+		brand      string
+		reg_num    int
+		is_working bool
+		price      float64
+		engine     Engine
+	}
+
+	func printCar(car Car) {
+		fmt.Println("Brand ", car.brand)
+		fmt.Println("Reg. ", car.reg_num)
+		fmt.Println("Status ", car.is_working)
+		fmt.Println("Price ", car.price)
+		fmt.Println("Engine_id ", car.engine.id)
+		fmt.Println("Milage ", car.engine.milage)
+		fmt.Println("=========================================")
+	}
+
+	func main() {
+		var car1 Car
+		car1.brand = "Yotato"
+		car1.reg_num = 12345
+		car1.is_working = true
+		car1.price = 220000
+		car1.engine.id = 11
+		car1.engine.milage = 22
+		printCar(car1)
+
+		car2 := Car{
+			brand:      "ATAT",
+			reg_num:    67890,
+			is_working: true,
+			price:      300000,
+			engine: Engine{
+				id:     21,
+				milage: 30,
+			},
+		}
+		printCar(car2)
+
+		// Anonymous structs
+		u := struct {
+			firstName string
+			lastName  string
+		}{
+			firstName: "John",
+			lastName:  "Doe",
+		}
+		fmt.Println(u.firstName, " ", u.lastName)
+	}
+```
+
+## Methods
+-	A method is a function associated with a particular type. It is a way to define behavior for specific type
+-	Methods are declared inside the type definition
+-	Methods can be called on instances of the type
+-	`func (receiver) func_name() {func_body}`
+```go
+	type Person struct {
+		first_name string
+		last_name  string
+	}
+
+	func (p Person) getFullName() string {
+		return p.first_name + " " + p.last_name
+	}
+	func main() {
+		person := Person{first_name: "John", last_name: "Doe"}
+		fmt.Println(person.getFullName())
+	}
+```
+
+## Defer keyword
+-	Defer keyword is used to schedule a function to be called when the surrounding function returns
+-	Defer is used to clean up resources like closing files, releasing locks, etc.
+```go
+	func greet() {
+		defer fmt.Println("Hello, World!") // This will be executed at last
+		fmt.Println("This is a greeting")
+	}
+
+	func main() {
+		greet()
+	}
+```
+
+## Interface
+-	An interface is a set of methods that a type must implement
+-	Interfaces are used to define a contract that a type must follow
+-	Interfaces are defined using the `interface` keyword
+```go
+	type Speaker interface {
+		Speak() string
+	}
+
+	type Cat struct{}
+
+	func (c Cat) Speak() string {
+		return "Meoww!"
+	}
+
+	func speak(speaker Speaker) {
+		fmt.Println("Speaker says ", speaker.Speak())
+	}
+
+	func main() {
+		speak(Cat{}) // Speaker says  Meoww!
+	}
+```
+
+## Goroutines and Waitgroups
+-	Goroutines are lightweight threads that can run concurrently with the main program
+-	Goroutines are scheduled by the Go runtime
+-	Goroutines are created using the `go` keyword
+-	Wait group is like a coordinator that helps to Wait for other code to finish
+-	Wait group is created using the `sync` module
+```go
+	func printNums(wg *sync.WaitGroup) {
+		defer wg.Done()
+		for i := 1; i <= 10; i++ {
+			time.Sleep(100 * time.Millisecond)
+			fmt.Printf("%d ", i)
+		}
+	}
+
+	func main() {
+		fmt.Println("Welcome")
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go printNums(&wg)
+		wg.Wait()
+	}
+```
+
+## Channels
+-	Channels are a way to communicate between goroutines
+-	Channels are typed, meaning they can only send and receive values of a specific type
+-	Channels are created using the `chan` keyword
+-	Channels can be buffered or unbuffered
+-	Unbuffered channels have capacity of 0. Each send operation on an unbuffered channel blocks until there is a corresponding receive operation and vice versa.
+-	A buffered channel has capacity of greater than 0. It allows multiple send operations into the channel without an immediate corresponding reeponse. Operations are blocked only when the buffer is full 
+```go
+	func sendInt(ch chan<- int) {
+		ch <- 1
+	}
+
+	func main() {
+		// Create a channel
+		ch := make(chan int)
+		go sendInt(ch) // If `go` not used, it will give error
+		val := <-ch
+		fmt.Println(val)
+
+		// Unbuffered channel
+		unbuff := make(chan int)
+		// Buffered channel
+		buff := make(chan string, 2)
+
+		go sendInt(unbuff)
+		unbuffVal := <-unbuff
+		fmt.Println("Value from Unbuffered channel", unbuffVal)
+
+		go func() {
+			buff <- "Hello"
+			buff <- "World"
+			close(buff)
+		}()
+		// If we don't close the channel, it will block indefinitely
+		for msg := range buff {
+			fmt.Println("Data from Buffered channel", msg)
+		}
+	}
+```
+## Select
+-	Select is a statement that waits on multiple channels and executes the first one that is ready
+-	Select can be used with channels, timers, and even the default case
+```go
+	func main() {
+		ch1 := make(chan string)
+		ch2 := make(chan string)
+		// We use the select statement to wait on both channels. If both channels are ready, the
+		// select statement will execute the first case that is ready. If only one channel is ready,
+		// the select statement will execute the case for that channel. If neither channel is ready,
+		// the select statement will block until one of the channels is ready.
+
+		go func() {
+			time.Sleep(1 * time.Second)
+			ch1 <- "Channel1 message"
+		}()
+
+		go func() {
+			time.Sleep(2 * time.Second)
+			ch2 <- "Channel2 message"
+		}()
+
+		select {
+		case msg1 := <-ch1:
+			fmt.Println("Received message from channel 1:", msg1)
+		case msg2 := <-ch2:
+			fmt.Println("Received message from channel 2:", msg2)
+		case <-time.After(5 * time.Second):
+			fmt.Println("Timeout occurred")
+		}
+	}
+```
+
+## Mutex
+- Mutex is a lock that can be used to protect shared resources from concurrent access
+- Mutex can be used to prevent data races in concurrent programs
+```go
+	package main
+	import (
+		"fmt"
+		"sync"
+		"time"
+		)
+		var mu sync.Mutex
+		var data int
+		func main() {
+			go func() {
+				mu.Lock()
+				data = 10
+				mu.Unlock()
+			}()
+			go func() {
+				mu.Lock()
+				fmt.Println("Data:", data)
+				mu.Unlock()
+			}()
+			time.Sleep(1 * time.Second)
+		}
+
+```
