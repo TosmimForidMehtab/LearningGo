@@ -652,6 +652,8 @@ func main() {
 -	`%t` for booleans
 -	`%v` guesses based on datatype
 -	`%T` for types
+-	`%p` for pointers
+
 
 ## Structs (Structure)
 - A struct is a collection of fields of different data types.
